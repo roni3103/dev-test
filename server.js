@@ -1,42 +1,54 @@
 const express = require('express');
 const app = express();
-const config = require('./config/development');
-const axios = require('axios');
-const winston = require('winston');
 
+const winston = require('winston');
 const logConfiguration = {
     'transports': [
-        new winston.transports.Console()
-    ]
-};
+       new winston.transports.Console()
+    ] 
+  };
 const logger = winston.createLogger(logConfiguration);
 
-
-// const search = require('./api/search');
-
-// THIS GOING TO SEARCH
-getAllUsers = async () => {
-    try {
-      const allUsers = await axios.get(config.allUsersURL);
-      return allUsers.data;
-    } catch (err) {
-        logger.log({
-            message: err,
-            level: 'error'
-        })
-    }
-}
+const search = require('./api/search');
 
 app.get('/', async (req, res) => {   
     // make call to api 
     try {
-        const allUsers = await getAllUsers();
+        const allUsers = await search.getAllUsers();
         res.send(allUsers);
       } catch (err) {
-          res.status(500).send('There was an error getting all users')
+          res.status(500).send({
+              message: err.message
+          })
     }
     
 });
+
+app.get('/all-users', async (req, res) => {   
+    // make call to api 
+    try {
+        const allUsers = await search.getAllUsers();
+        res.send(allUsers);
+      } catch (err) {
+          res.status(500).send({
+              message: err.message
+          })
+    }
+    
+});
+
+app.get('/london-users', async (req, res) => {
+    // make call to api 
+    try {
+        const londonUsers = await search.getLondonUsers();
+        res.send(londonUsers);
+      } catch (err) {
+          res.status(500).send({
+              message: err.message
+          })
+    }
+    
+})
 
 app.get('/version',(req, res) => {
     try {

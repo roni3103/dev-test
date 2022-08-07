@@ -4,7 +4,7 @@
   "description": "Returns a deduplicated list of users given a collection of geographical coordinates",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --coverage",
     "start": "node index.js"
   },
   "author": "Roni Colling",
