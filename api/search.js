@@ -10,6 +10,7 @@ getAllUsers = async (req, res) => {
       const allUsers = await axios.get(config.allUsersURL);
       return allUsers.data;
     } catch (err) {
+        console.log(err);
         logger.log({
             message: 'There was an error processing get all users',
             level: 'error'

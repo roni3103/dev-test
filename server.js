@@ -16,7 +16,7 @@ app.get('/', async (req, res) => {
     try {
         const allUsers = await search.getAllUsers();
         res.send(allUsers);
-      } catch (err) {
+      } catch (err) {  
           res.status(500).send({
               message: err.message
           })
