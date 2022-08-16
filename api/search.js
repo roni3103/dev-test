@@ -5,23 +5,26 @@ const config = require('../config/development');
 const geolocation = require('./geolocation');
 
 const axios = require('axios');
-
 const _ = require("lodash");
+
 const winston = require('winston');
 const logConfiguration = config.loggerConfig;
 const logger = winston.createLogger(logConfiguration);
 
+
 getAllUsers = async (req, res) => {
-    try {
-      const allUsers = await axios.get(config.allUsersURL);
-      return allUsers.data;
-    } catch (err) {
-        logger.log({
-            message: 'There was an error processing get all users : ' + err.message,
-            level: 'error'
-        })
-        res.status(500).send(err)
-    }
+  try {
+    const allUsers = await axios.get(config.allUsersURL);
+    return allUsers.data;
+  } catch (err) {
+      err.message = err.message || config.GENERIC_ERROR_MESSAGE;
+      logger.log({
+          message: 'There was an error processing get all users : ' + err.message,
+          level: 'error'
+      })
+      console.log(err.message); //for unit testing purposes only
+      res.status(500).send(err)
+  }
 }
 
 getLondonUsers = async (req, res) => {
@@ -29,10 +32,12 @@ getLondonUsers = async (req, res) => {
       const londonUsers = await axios.get(config.londonersURL);
       return londonUsers.data;
     } catch (err) {
+        err.message = err.message || config.GENERIC_ERROR_MESSAGE;
         logger.log({
             message: 'There was an error getting London users : ' + err.message,
             level: 'error'
-        })
+        });
+        console.log(err.message); //for unit testing purposes only
         res.status(500).send(err)
     }
 }
@@ -53,24 +58,14 @@ findUsersWithinDistance = (arr, locationToTest) => {
   
   }
   
-  combineUsers = (firstArray, secondArray) => {
-    const combinedArray = _.unionWith(firstArray, secondArray,_.isEqual);
-    return combinedArray;
-  }
+combineUsers = (firstArray, secondArray) => {
+  const combinedArray = _.unionWith(firstArray, secondArray,_.isEqual);
+  return combinedArray;
+}
   
-  filterAndCombineUsers =  async () => {
-    let allUsers = await getAllUsers();
-    let londonUsers = await getLondonUsers();
-  
-    const usersWithinDistance = findUsersWithinDistance(allUsers, config.londonLatLon);
-    const combinedLondonAndWithinFifty = combineUsers(londonUsers, usersWithinDistance);
-    return combinedLondonAndWithinFifty;
-  }
-
 module.exports = {
     getAllUsers,
     getLondonUsers,
     findUsersWithinDistance,
     combineUsers,
-    filterAndCombineUsers
 }

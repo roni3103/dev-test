@@ -1,10 +1,11 @@
 const app = require('../server');
-const supertest = require('supertest');
 const axios = require('axios');
 const config = require('../config/development');
 
 const search = require('./search');
 const mockData = require('../mocks/mock-data');
+
+jest.spyOn(global.console, 'log'); 
 
 jest.mock('axios');
 const mockRequest = () => {
@@ -19,12 +20,14 @@ const mockResponse = () => {
     return res;
 };
 
-// TODO - MOVE TO SEARCH
 describe("SEARCH - success", () => {
     beforeEach(() => {
         axios.get.mockImplementation(() => Promise.resolve( 
             { data: mockData.fakeSuccessResponse }));
     });
+    afterEach(() => {
+        jest.resetAllMocks();
+    })
     test("it should return 200 and result for getAllUsers", async () => {
         const result = await search.getAllUsers();
         expect(result.data).toBeDefined();
@@ -37,29 +40,21 @@ describe("SEARCH - success", () => {
     });   
 })
 
-// TODO - PASSES BUT WON'T FAIL - SOMETHING NOT RIGHT
 describe("SEARCH - error", () => {
-    test("With an incorrect call to get all users ", async () => {
+    afterEach(()=> {
+        jest.resetAllMocks();
+    })
+    test("An error with no message should log a generic message", async () => {
         // arrange
         const req = mockRequest();
         const res = mockResponse();
-        const customErr = {
-            message: 'fakerr'
-        }
-        axios.get.mockImplementationOnce(() => Promise.reject(new Error(customErr.message)));
-        config.allUsersURL = "https://dwp-techtest.herokuapp.com/frogspawn"
-        try {
-            // act
-            const result = await search.getAllUsers(req, res);
-            await expect(axios.get).toHaveBeenCalledWith("https://dwp-techtest.herokuapp.com/frogspawn");
-        } catch (err) {  
-            // assert
-            await expect(res.status).toHaveBeenCalledWith(500);
-            await expect(res.send).toHaveBeenCalledWith(new Error(customErr.message));
-        }
+        axios.get.mockImplementationOnce(() => Promise.reject(new Error()));
+        const result = await search.getAllUsers(req, res);
+        expect(result).not.toBeDefined();
+        expect(console.log).toHaveBeenCalledWith('Internal error please raise incident')
     });
 
-    test("With an incorrect call to get London users", async () => {
+    test("An error with a message should display the given message", async () => {
         // arrange
         const req = mockRequest();
         const res = mockResponse();
@@ -67,16 +62,15 @@ describe("SEARCH - error", () => {
             message: 'fakerr'
         }
         axios.get.mockImplementationOnce(() => Promise.reject(new Error(customErr.message)));
-        config.londonersURL = "https://fakeurl"
 
-        try {
-            // act
-            const result = await search.getLondonUsers(req, res);
-        } catch (err) {  
-            // assert 
-            await expect(res.status).toHaveBeenCalledWith(500);
-            await expect(res.send).toHaveBeenCalledWith(new Error(customErr.message));
-        }
+        // act
+        const result = await search.getLondonUsers(req, res);
+
+        // assert
+        expect(result).not.toBeDefined();
+        expect(console.log).not.toHaveBeenCalledWith('Internal error please raise incident');
+        expect(console.log).toHaveBeenCalledWith('fakerr');
+
     });
     
 })
@@ -97,8 +91,5 @@ describe("filter and combine users", () => {
         var result = search.combineUsers(londonUsersArray, withinFiftyArray);
         expect(result.length).toBe(9);
     })
-
-    // TODO - TEST FOR FILTER AND COMBINE
-
     
 })

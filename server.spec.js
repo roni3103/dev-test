@@ -1,72 +1,46 @@
 const app = require('./server');
 const supertest = require('supertest');
-const axios = require('axios');
-const config = require('./config/development');
+const request = supertest(app);
 
-const search = require('./api/search');
-const mockData = require('./mocks/mock-data');
+const VERSION = require('./package.json').version;
 
-jest.mock('axios');
-
-const mockRequest = () => {
-    fakeHeader : 'fake'
-}
-
-const mockResponse = () => {
-    const res = {};
-    res.status = jest.fn().mockReturnValue(res);
-    res.send =  jest.fn().mockReturnValue(res);
-    res.json = jest.fn().mockReturnValue(res);
-    return res;
-};
-
-// BELOW REMAIN AS SHOULD TEST API ROUTES
-// NOT GOOD TESTS - THEY DON'T REPRESENT WHAT I THOUGHT IF I RETURN THE RESPONSE BODY
 test('It should return the deduplicated list of users and 200 for base route', async () => {
     // success - what should the API work with?
-    // const req = mockRequest();
-    // const res = mockResponse();
-    await supertest(app).get("/")
-    .then((response) => {
-        expect(200)
-        expect(response.body).toBeDefined();
-        console.log('res', response.body)
-        expect(typeof(response.body)).toBe('object');
-        
-    });
+    const response = await request.get('/')
+  
+    expect(response.status).toBe(200)
+    expect(typeof(response.body)).toBe("object")
+    expect(response.text).toContain('latitude') 
 });
 
 test('It should return 200 and list of all users when calling the /all-users route', async () => {
     // success - what should the API work with?
-    await supertest(app).get("/all-users")
-    .then((response) => {
-        expect(200)
-        expect(response.body).toBeDefined();
-        expect(typeof(response.body)).toBe('object');
-    });
+    const response = await request.get('/all-users')
+  
+    expect(response.status).toBe(200)
+    expect(typeof(response.body)).toBe("object")
+    expect(response.text).toContain('latitude')
 });
 
 test('It should return 200 and list of London users when calling the /london-users route', async () => {
     // success - what should the API work with?
-    await supertest(app).get("/london-users")
-    .then((response) => {
-        expect(200)
-        expect(response.body).toBeDefined();
-        expect(typeof(response.body)).toBe('object');
-    });
+    const response = await request.get('/london-users')
+  
+    expect(response.status).toBe(200)
+    expect(typeof(response.body)).toBe("object")
+    expect(response.text).toContain('latitude')
+
 });
 
 test('It should return the current version', async () => {
     // success - what should the API work with?
-    const version = require('./package.json').version;
-    await supertest(app).get("/version")
-    .then((response) => {
-        expect(200)
-        expect(response.body).toBeDefined();
-        expect(response.text).toBe(version);
-    });
+    const response = await request.get('/version');
+    expect(response.status).toBe(200);
+    expect(response.text).toEqual(VERSION);
+
 });
 
+// TODO - RESTYLE TO MATCH THE OTHER TESTS
 test('It should return a 404 for a non-existent endpoint', async () => {
     // failure - scenarios that would not work
     await supertest(app).get("/blob")
@@ -79,6 +53,7 @@ test('It should return a 404 for a non-existent endpoint', async () => {
     });
 });
 
+// TODO - RESTYLE TO MATCH THE OTHER TESTS
 test("It should return 404 for an incorrect http verb", async () => {
     // incorrect verb
     await supertest(app).post("/")
@@ -90,3 +65,17 @@ test("It should return 404 for an incorrect http verb", async () => {
     });
     
 })
+
+// TODO - WORK OUT HOW TO FAKE THIS ONE
+// test("It should return 500 for any other error", async () => {
+//     // axios.get.mockImplementationOnce(() => Promise.reject(new Error()));
+//     const response = await request.get('/all-users');
+//     response.mockRejectedValue = new Error(
+//         {
+//             message : 'omg'
+//         }
+//     );
+//     expect(response.status).toBe(200);
+//     expect(response.error).toEqual(VERSION);
+    
+// })

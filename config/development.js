@@ -12,6 +12,7 @@ module.exports = {
     },
     allUsersURL: `${baseUrl}/users`,
     londonersURL: `${baseUrl}/city/London/users`,
-    londonLatLon : { lat: 51.5074, lon: -0.1277 }
+    londonLatLon : { lat: 51.5074, lon: -0.1277 },
+    GENERIC_ERROR_MESSAGE: 'Internal error please raise incident'
 
 }
