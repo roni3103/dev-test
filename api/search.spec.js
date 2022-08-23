@@ -24,6 +24,7 @@ describe("SEARCH - success", () => {
     beforeEach(() => {
         axios.get.mockImplementation(() => Promise.resolve( 
             { data: mockData.fakeSuccessResponse }));
+            
     });
     afterEach(() => {
         jest.resetAllMocks();

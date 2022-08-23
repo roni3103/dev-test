@@ -1,11 +1,31 @@
 const app = require('./server');
 const supertest = require('supertest');
+const axios = require('axios');
+
 const request = supertest(app);
+const search = require('./api/search');
+jest.mock('axios');
+const mockRequest = () => {
+    fakeHeader : 'fake'
+}
 
+const mockResponse = () => {
+    const res = {};
+    res.status = jest.fn().mockReturnValue(res);
+    res.send =  jest.fn().mockReturnValue(res);
+    res.json = jest.fn().mockReturnValue(res);
+    return res;
+};
+
+jest.spyOn(global.console, 'log'); 
 const VERSION = require('./package.json').version;
-
+beforeEach(() => {
+    jest.setTimeout(10000)
+    jest.resetAllMocks();
+})
 test('It should return the deduplicated list of users and 200 for base route', async () => {
     // success - what should the API work with?
+    
     const response = await request.get('/')
   
     expect(response.status).toBe(200)
@@ -67,15 +87,17 @@ test("It should return 404 for an incorrect http verb", async () => {
 })
 
 // TODO - WORK OUT HOW TO FAKE THIS ONE
-// test("It should return 500 for any other error", async () => {
-//     // axios.get.mockImplementationOnce(() => Promise.reject(new Error()));
-//     const response = await request.get('/all-users');
-//     response.mockRejectedValue = new Error(
-//         {
-//             message : 'omg'
-//         }
-//     );
-//     expect(response.status).toBe(200);
-//     expect(response.error).toEqual(VERSION);
-    
-// })
+test('It should return a 500 for any other errors', async () => {
+    // failure - scenarios that would not work
+    const req = mockRequest();
+    const res = mockResponse();
+    axios.get.mockImplementationOnce(() => Promise.reject(new Error()));
+    await supertest(app).get("/")
+    .expect(500)
+    .then((response) => {
+        expect(response.error).toBeDefined();
+        expect(typeof(response.error)).toBe('object');
+        expect(response.status).toBe(500);
+        expect(response.error.text).toContain('Internal error please raise incident');
+    });
+});
