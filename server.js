@@ -5,11 +5,7 @@ const config = require('./config/development');
 
 // SETUP LOGGING
 const winston = require('winston');
-const logConfiguration = {
-    'transports': [
-       new winston.transports.Console()
-    ] 
-  };
+const logConfiguration = config.loggerConfig;
 const logger = winston.createLogger(logConfiguration);
 
 
@@ -22,10 +18,13 @@ app.get('/', async (req, res) => {
         const usersWithinDistance = search.findUsersWithinDistance(allUsers, config.londonLatLon);
         const combinedLondonAndWithinFifty = search.combineUsers(londonUsers, usersWithinDistance);
         res.send(combinedLondonAndWithinFifty);
-      } catch (err) {  
-          res.status(500).send({
-              message: err.message
-          })
+    } catch (err) {  
+        err.message = err.message || config.GENERIC_ERROR_MESSAGE;
+        logger.log({
+            message: 'There was an error processing combined call : ' + err.message,
+            level: 'error'
+        })
+        res.status(500).send(err)
     }  
 });
 
@@ -35,7 +34,12 @@ app.get('/all-users', async (req, res) => {
         const allUsers = await search.getAllUsers(req, res);
         res.send(allUsers);
       } catch (err) {
-          res.status(500).send(err)
+        err.message = err.message || config.GENERIC_ERROR_MESSAGE;
+        logger.log({
+            message: 'There was an error processing get all users call : ' + err.message,
+            level: 'error'
+        })
+        res.status(500).send(err)
     }
     
 });
@@ -46,7 +50,12 @@ app.get('/london-users', async (req, res) => {
         const londonUsers = await search.getLondonUsers(req, res);
         res.send(londonUsers);
       } catch (err) {
-          res.status(500).send(err)
+        err.message = err.message || config.GENERIC_ERROR_MESSAGE;
+        logger.log({
+            message: 'There was an error processing get London users call : ' + err.message,
+            level: 'error'
+        })
+        res.status(500).send(err)
     }
     
 })
