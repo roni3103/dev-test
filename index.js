@@ -1,4 +1,7 @@
 const app = require('./server');
-app.listen(5020, () => {
-  console.log("Server has started on 5020!");
+const config = require('./config/development');
+
+const port = config.port;
+app.listen(port, () => {
+  console.log(`Server has started on ${port}`);
 });

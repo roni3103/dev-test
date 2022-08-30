@@ -2,6 +2,7 @@ const baseUrl = "https://dwp-techtest.herokuapp.com";
 const winston = require('winston');
 
 module.exports = {
+    port: 5020,
     certConfig: {
       CA: '/etc/ssl/certs/ca-certs.pem'  
     },

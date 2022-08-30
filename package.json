@@ -1,6 +1,6 @@
 {
   "name": "dev-test",
-  "version": "1.0.0test",
+  "version": "1.0.0",
   "description": "Returns a deduplicated list of users given a collection of geographical coordinates",
   "main": "index.js",
   "scripts": {

@@ -52,7 +52,8 @@ describe("SEARCH - error", () => {
         axios.get.mockImplementationOnce(() => Promise.reject(new Error()));
         const result = await search.getAllUsers(req, res);
         expect(result).not.toBeDefined();
-        expect(console.log).toHaveBeenCalledWith('Internal error please raise incident')
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.send).toHaveBeenCalledWith(new Error('Internal error please raise incident'))
     });
 
     test("An error with a message should display the given message", async () => {
@@ -69,8 +70,8 @@ describe("SEARCH - error", () => {
 
         // assert
         expect(result).not.toBeDefined();
-        expect(console.log).not.toHaveBeenCalledWith('Internal error please raise incident');
-        expect(console.log).toHaveBeenCalledWith('fakerr');
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.send).toHaveBeenCalledWith(new Error('fakerr'));
 
     });
     

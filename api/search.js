@@ -22,7 +22,6 @@ getAllUsers = async (req, res) => {
           message: 'There was an error processing get all users : ' + err.message,
           level: 'error'
       })
-      console.log(err.message); //for unit testing purposes only
       res.status(500).send(err)
   }
 }
@@ -37,7 +36,6 @@ getLondonUsers = async (req, res) => {
             message: 'There was an error getting London users : ' + err.message,
             level: 'error'
         });
-        console.log(err.message); //for unit testing purposes only
         res.status(500).send(err)
     }
 }
